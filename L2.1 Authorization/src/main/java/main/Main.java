@@ -26,7 +26,7 @@ public class Main {
         accountService.addNewUser(new UserProfile("test"));
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.addServlet(new ServletHolder(new UsersServlet(accountService)), "/api/v1/users");
+        context.addServlet(new ServletHolder(new UsersServlet(accountService)), "/*");
         context.addServlet(new ServletHolder(new SessionsServlet(accountService)), "/api/v1/sessions");
 
         ResourceHandler resource_handler = new ResourceHandler();

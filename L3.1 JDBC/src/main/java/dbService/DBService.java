@@ -2,6 +2,7 @@ package dbService;
 
 import dbService.dao.UsersDAO;
 import dbService.dataSets.UsersDataSet;
+import dbService.executor.Credentionals;
 import org.h2.jdbcx.JdbcDataSource;
 
 import java.sql.Connection;
@@ -19,7 +20,13 @@ public class DBService {
     private final Connection connection;
 
     public DBService() {
-        this.connection = getH2Connection();
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            System.out.println("Driver loaded!");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Cannot find the driver in the classpath!", e);
+        }
+        this.connection = getMysqlConnection();
     }
 
     public UsersDataSet getUser(long id) throws DBException {
@@ -62,6 +69,7 @@ public class DBService {
     }
 
     public void printConnectInfo() {
+        System.gc();
         try {
             System.out.println("DB name: " + connection.getMetaData().getDatabaseProductName());
             System.out.println("DB version: " + connection.getMetaData().getDatabaseProductVersion());
@@ -75,7 +83,8 @@ public class DBService {
     @SuppressWarnings("UnusedDeclaration")
     public static Connection getMysqlConnection() {
         try {
-            DriverManager.registerDriver((Driver) Class.forName("com.mysql.jdbc.Driver").newInstance());
+//            Class.forName("com.mysql.jdbc.Driver");
+//            DriverManager.registerDriver((Driver) Class.forName("com.mysql.jdbc.Driver").newInstance());
 
             StringBuilder url = new StringBuilder();
 
@@ -83,15 +92,18 @@ public class DBService {
                     append("jdbc:mysql://").        //db type
                     append("localhost:").           //host name
                     append("3306/").                //port
-                    append("db_example?").          //db name
-                    append("user=tully&").          //login
-                    append("password=tully");       //password
+                    append("javabase");
+//                    append("javabase?").     //db name
+//                    append("user=java&").          //login
+//                    append("password=java");       //password
 
             System.out.println("URL: " + url + "\n");
+            String login = Credentionals.LOGIN;
+            String password = Credentionals.PASSWORD;
 
-            Connection connection = DriverManager.getConnection(url.toString());
+            Connection connection = DriverManager.getConnection(url.toString(), login, password);
             return connection;
-        } catch (SQLException | InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
